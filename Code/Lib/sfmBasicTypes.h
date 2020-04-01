@@ -10,6 +10,11 @@
 
   See LICENSE.txt in the top level directory for details.
 
+  Based on prototype vec2d, pos2d, dir2d: 9 Mar 2020
+      Author: Tim Spain
+  Included in this project: 1 Apr 2020
+      Author: Jim Dobson
+
 =============================================================================*/
 
 #ifndef sfmBasicTypes_h
@@ -46,11 +51,11 @@
 #include <ctgmath>
 
 #ifndef POS2D_XWRAP
-#define POS2D_XWRAP 80.
+#define POS2D_XWRAP 50.
 #endif
 
 #ifndef POS2D_YWRAP
-#define POS2D_YWRAP 24.
+#define POS2D_YWRAP 10.
 #endif
 
 //! Single namespace for all code in this package

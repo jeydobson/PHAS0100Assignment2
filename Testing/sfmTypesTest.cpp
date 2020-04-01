@@ -10,6 +10,11 @@
 
   See LICENSE.txt in the top level directory for details.
 
+  Based on prototype version: 9 Mar 2020
+      Author: Tim Spain
+  Included in this project: 1 Apr 2020
+      Author: Jim Dobson
+
 =============================================================================*/
 
 #include "catch.hpp"
@@ -17,8 +22,9 @@
 #include "sfmBasicTypes.h"
 #include <iostream>
 #include <vector>
-
+#include <algorithm>
 #include <cmath>
+#include <limits>
 
 bool generic_direction_test(
                 double x1, double y1,
@@ -38,6 +44,15 @@ bool ctor_test(double xin, double yin, double xt, double yt) {
 	return closely_equal(construct, target);
 }
 
+// as POS2D_XWRAP and POS2D_YWRAP can change define some test
+// points relative to these for convenience
+double near_xwrap = POS2D_XWRAP - POS2D_XWRAP/100.0;
+double near_xzero = POS2D_XWRAP/100.0;
+double middle_xwrap = POS2D_XWRAP/2.0;
+double near_ywrap = POS2D_YWRAP - POS2D_YWRAP/100.0;
+double near_yzero = POS2D_YWRAP/100.0;
+double middle_ywrap = POS2D_YWRAP/2.0;
+
 TEST_CASE("Test the wrap values", "[Tests]") {
 	REQUIRE(sfm::pos2d::get_x_wrap() == POS2D_XWRAP);
 	REQUIRE(sfm::pos2d::get_y_wrap() == POS2D_YWRAP);
@@ -45,49 +60,55 @@ TEST_CASE("Test the wrap values", "[Tests]") {
 
 TEST_CASE("Test the constructor", "[Tests]") {
 	// Centre of the field
-	REQUIRE(ctor_test(2, 1, 2, 1));
-	REQUIRE(!ctor_test(1, 2, 2, 1));
+	REQUIRE(ctor_test(middle_xwrap, middle_ywrap, 
+			  middle_xwrap, middle_ywrap));
+        // To guarantee failure need:
+	// xtest != ytest && xtest and ytest within xwrap and ywrap
+	double xtest = std::min(middle_xwrap, middle_ywrap);
+        double ytest = xtest + std::min(near_xzero, near_yzero); 
+	REQUIRE(!ctor_test(xtest, ytest, 
+			   ytest, xtest));
 	// Near the wrap-around
-	REQUIRE(ctor_test(POS2D_XWRAP-0.5, POS2D_YWRAP-0.5, 
-			  POS2D_XWRAP-0.5, POS2D_YWRAP-0.5));
+	REQUIRE(ctor_test(near_xwrap, near_ywrap, 
+		          near_xwrap, near_ywrap)); 
 	// On the edge
-	REQUIRE(ctor_test(POS2D_XWRAP, POS2D_YWRAP, 0, 0));
+	REQUIRE(ctor_test(POS2D_XWRAP, POS2D_YWRAP,
+			  0, 0));
 	// Over the edge
-	REQUIRE(ctor_test(POS2D_XWRAP+1, POS2D_YWRAP+1, 1, 1));
+	REQUIRE(ctor_test(POS2D_XWRAP+near_xzero, POS2D_YWRAP+near_yzero, 
+			  near_xzero, near_yzero));
 	// Check the coordinates have genuinely wrapped
-	sfm::pos2d p(POS2D_XWRAP+1, POS2D_YWRAP+1);
-	REQUIRE(p.x() != POS2D_XWRAP+1);
-	REQUIRE(p.y() != POS2D_YWRAP+1);
+	sfm::pos2d p(POS2D_XWRAP+near_xzero, 
+		     POS2D_YWRAP+near_yzero);
+	REQUIRE(p.x() != POS2D_XWRAP+near_xzero);
+	REQUIRE(p.y() != POS2D_YWRAP+near_yzero);
 }
 
 TEST_CASE("Direction calculation", "[Tests]") {
 
-	// The direction from (1,1) to (3,2) should be (2,1)
+	// No wrap: direction from (ax, ay) to (bx, by) should be (bx-ax, by-ax)
 	REQUIRE(generic_direction_test(
-			1, 1,
-			3, 2,
-			2, 1));
+			near_xzero, near_yzero,
+			middle_xwrap, middle_ywrap,
+			middle_xwrap-near_xzero, middle_ywrap-near_yzero));
 
-	// The direction from (2,1) to (POS2D_XWRAP+1,2) should be (-1,1), due to the
-	// wrap around in x
+	// With bx wrapped: direction from (ax, ay) to (bx, by) should be (wrap(bx)-ax, by-ay)
 	REQUIRE(generic_direction_test(
-			2, 1,
-			POS2D_XWRAP+1, 2,
-			-1, 1));
+			near_xzero, near_yzero,
+			POS2D_XWRAP+0.5*near_xzero, middle_ywrap,
+			0.5*near_xzero-near_xzero, middle_ywrap-near_yzero));
 
-	// The direction from (1, 2.5) to (3, POS2D_YWRAP+0.5) should be (2,-2), due
-	// to the wrap around in y
+	// As above now for wrap in y
 	REQUIRE(generic_direction_test(
-			1, 2.5,
-			3, POS2D_YWRAP+0.5,
-			2, -2));
+			near_xzero, near_yzero,
+			middle_xwrap, POS2D_YWRAP+0.5*near_yzero,
+			middle_xwrap-near_xzero, 0.5*near_yzero-near_yzero));
 
-	// The direction from (1, 0.5) to (POS2D_XWRAP+0.25, POS2D_YWRAP+1.0) should be (-0.75,0.5), due
-	// to the wrap around in both x and y
+	// As above but wrap in both x and y (choose different factors) 
 	REQUIRE(generic_direction_test(
-			1, 0.5,
-			POS2D_XWRAP+0.25, POS2D_YWRAP+1.0,
-			-0.75, 0.5));
+			near_xzero, near_yzero,
+			POS2D_XWRAP+0.2*near_xzero, POS2D_YWRAP+0.3*near_yzero,
+			0.2*near_xzero-near_xzero, 0.3*near_yzero-near_yzero));
 
 }
 
@@ -110,7 +131,7 @@ double mean_reldiff(double a, double b) {
 }
 
 bool closely_equal(sfm::vec2d &a, sfm::vec2d &b) {
-  const double tol = 1e-16; // tolerance for floating point comparisons
+  const double tol = 100*std::numeric_limits<double>::epsilon(); // tolerance for floating point comparisons
 
   double mean_rel_diff_x = std::abs(mean_reldiff(a.x(), b.x()));
   double mean_rel_diff_y = std::abs(mean_reldiff(a.y(), b.y()));
@@ -122,24 +143,25 @@ bool closely_equal(sfm::vec2d &a, sfm::vec2d &b) {
 TEST_CASE("Addition test", "[Tests]") {
 	// No wrapping
 	REQUIRE(generic_displacement_test(
-			1, 1,
-			2, 1,
-			3, 2));
+			near_xzero, near_yzero,
+			middle_xwrap, middle_ywrap,
+			near_xzero+middle_xwrap,  near_yzero+middle_ywrap));
 	// Wrapping in x
 	REQUIRE(generic_displacement_test(
-			2, 1,
-			POS2D_XWRAP+1, 1,
-			3, 2));
+			near_xzero, near_yzero,
+			POS2D_XWRAP+near_xzero, middle_ywrap, 
+			near_xzero+near_xzero, near_yzero+middle_ywrap));
 	// Wrapping in y
 	REQUIRE(generic_displacement_test(
-			1, 1,
-			2, POS2D_YWRAP+1,
-			3, 2));
+			near_xzero, near_yzero,
+			middle_xwrap, POS2D_YWRAP+near_yzero,
+			near_xzero+middle_xwrap, near_yzero+near_yzero));
 	// Wrapping in -x and -y 
 	REQUIRE(generic_displacement_test(
-			2, 1,
-			-POS2D_XWRAP+1, -POS2D_YWRAP+1,
-			3, 2));
+			near_xzero, near_yzero,
+			-middle_xwrap, -middle_ywrap,
+			POS2D_XWRAP-middle_xwrap+near_xzero, 
+			POS2D_YWRAP-middle_ywrap+near_yzero));
 }
 
 bool generic_displacement_test(
@@ -168,32 +190,29 @@ bool generic_subtraction_test(
 
 // Subtraction, operator-()
 TEST_CASE("operator- tests", "[Tests]") {
-	// The direction from (1,1) to (3,2) should be (2,1)
+	// The direction from (ax,ay) to (bx,by) should be (bx-ax,by-ax)
 	REQUIRE(generic_subtraction_test(
-			3, 2,
-			1, 1,
-			2, 1));
+			middle_xwrap, middle_ywrap,
+			near_xzero, near_yzero,
+			middle_xwrap-near_xzero, middle_ywrap-near_yzero));
 
-	// The direction from (1,1) to (POS2D_XWRAP+2,2) should be (1,1), due to the
-	// wrap around in x
+	// Now with wrap in x
 	REQUIRE(generic_subtraction_test(
-			POS2D_XWRAP+2, 2,
-			1, 1,
-			1, 1));
+			POS2D_XWRAP+0.4*middle_xwrap, middle_ywrap,
+			near_xzero, near_yzero,
+			0.4*middle_xwrap-near_xzero, middle_ywrap-near_yzero));
 
-	// The direction from (1, 0.5) to (3, POS2D_YWRAP+1.5) should be (2,1), due
-	// to the wrap around in y
+	// Now with wrap in y
 	REQUIRE(generic_subtraction_test(
-			3, POS2D_YWRAP+1.5,
-			1, 0.5,
-			2, 1));
+			middle_xwrap, POS2D_YWRAP+0.6*middle_ywrap,
+			near_xzero, near_yzero,
+			middle_xwrap-near_xzero, 0.6*middle_ywrap-near_yzero));
 
-	// The direction from (POS2D_XWRAP+2.0, POS2D_YWRAP+1.5) to (1.5, 2.5) should be (-0.5,1), due
-	// to the wrap around in both x and y
+	// Wrap in x and y 
 	REQUIRE(generic_subtraction_test(
-			1.5, 2.5,
-			POS2D_XWRAP+2.0, POS2D_YWRAP+1.5,
-			-0.5, 1));
+			POS2D_XWRAP+0.6*middle_xwrap, near_yzero,
+		       	near_xzero, POS2D_YWRAP+0.4*middle_ywrap,
+			0.6*middle_xwrap-near_xzero, near_yzero-0.4*middle_ywrap));
 
 }
 

@@ -10,6 +10,11 @@
 
   See LICENSE.txt in the top level directory for details.
 
+  Based on prototype vec2d, pos2d, dir2d: 9 Mar 2020
+      Author: Tim Spain
+  Included in this project: 1 Apr 2020
+      Author: Jim Dobson
+
 =============================================================================*/
 
 #include "sfmBasicTypes.h"

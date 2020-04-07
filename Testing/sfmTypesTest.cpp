@@ -238,3 +238,16 @@ TEST_CASE("Distance tests", "[Tests]") {
   REQUIRE(generic_distance_test(4.5, 2.5, 0.5, 0.5, 2));
 }
 
+TEST_CASE("Test scalar multiplication", "[Tests]") {
+	double x1 = 2.;
+	double y1 = 3.;
+	double s = 2.;
+
+	dir2d xy1(x1, y1);
+	dir2d xys(s*x1, s*y1);
+	dir2d xyc = xy1 * s;
+	dir2d xyd = s * xy1;
+
+	REQUIRE(closely_equal(xyc, xys));
+	REQUIRE(closely_equal(xyd, xys));
+}

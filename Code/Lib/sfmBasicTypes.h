@@ -113,6 +113,7 @@ class pos2d : public vec2d {
     pos2d( )  // position at the origin
     : vec2d(0., 0.) {};
     pos2d operator+(const dir2d &b) const;  // Move in a given direction from this position
+    // N.B. operator-, distance and direction ignore boundary conditions
     dir2d operator-(const pos2d &b) const; // direction vector from there to here a-b, 'this' is a
     double distance(const pos2d &) const; // distance between two positions
     dir2d direction(const pos2d &b) const; // direction vector of b from 'this'

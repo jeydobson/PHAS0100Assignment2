@@ -73,7 +73,9 @@ class vec2d {
     double yy;
   public:
     vec2d(double x, double y) 
-    : xx(x), yy(y){ }
+    : xx(x), yy(y){ }  
+    vec2d( ) // default constructor
+    : vec2d(0., 0.) {}; 
     vec2d operator+(const vec2d &b) const; // vector addition
     vec2d operator-(const vec2d &b) const; // vector subtraction
     double operator*(const vec2d &b) const; // scalar product
@@ -123,14 +125,16 @@ class pos2d : public vec2d {
 };
 
 /**
-* \class pos2d 
-* \brief 2D vector position class that wraps
+* \class dir2d 
+* \brief 2D vector direction class that does not wrap
 * \ingroup types
 */
 class dir2d : public vec2d {
   public:
     dir2d(double x, double y)
     : vec2d(x, y) { };
+    dir2d( )  // null direction
+    : vec2d(0., 0.) {};
 
     pos2d operator+(const pos2d&) const; // move the given position in this direction
     dir2d operator+(const dir2d&) const; // vector addition

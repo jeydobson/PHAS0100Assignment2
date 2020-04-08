@@ -24,22 +24,22 @@ namespace sfm {
 //=============================================================================*/
 // vec2d definitions
 //-----------------------------------------------------------------------------
-vec2d vec2d::operator+(vec2d &b) {
+vec2d vec2d::operator+(const vec2d &b) const {
   return vec2d(xx + b.xx, yy + b.yy);
 }
 
 //-----------------------------------------------------------------------------
-vec2d vec2d::operator-(vec2d &b) {
+vec2d vec2d::operator-(const vec2d &b) const {
   return vec2d(xx - b.xx, yy - b.yy);
 }
 
 //-----------------------------------------------------------------------------
-double vec2d::operator*(vec2d &b) {
+double vec2d::operator*(const vec2d &b) const {
   return xx * b.xx + yy * b.yy;
 }
 
 //-----------------------------------------------------------------------------
-vec2d vec2d::operator*(double &c) {
+vec2d vec2d::operator*(const double &c) const {
   return vec2d(c * xx, c * yy);
 }
 
@@ -47,30 +47,30 @@ vec2d vec2d::operator*(double &c) {
 // pos2d definitions
 //-----------------------------------------------------------------------------
 // Move in a given direction from this position
-pos2d pos2d::operator+(dir2d &b){
+pos2d pos2d::operator+(const dir2d &b) const {
   return this->displace(b);
 }
 
 //-----------------------------------------------------------------------------
-dir2d pos2d::operator-(pos2d &b) {
+dir2d pos2d::operator-(const pos2d &b) const {
   return pos2d::direction(b, *this);
 }       
  
 //-----------------------------------------------------------------------------
-double pos2d::distance(pos2d &b) {
+double pos2d::distance(const pos2d &b) const {
   dir2d d = this->direction(b);
   return sqrt(d.x() * d.x() + d.y() * d.y());
 }       
         
 //-----------------------------------------------------------------------------
 // direction vector a - b, where 'this' is a
-dir2d pos2d::direction(pos2d& b) {
+dir2d pos2d::direction(const pos2d& b) const {
   return direction(*this, b);
 }
 
 //-----------------------------------------------------------------------------
 // direction vector from a to b
-dir2d pos2d::direction(pos2d &a, pos2d &b) {
+dir2d pos2d::direction(const pos2d &a, const pos2d &b) {
   double dx = b.x() - a.x();
   double dy = b.y() - a.y();
   if (fabs(dx) > x_wrap/2) {
@@ -83,7 +83,7 @@ dir2d pos2d::direction(pos2d &a, pos2d &b) {
 }
 
 //-----------------------------------------------------------------------------
-pos2d pos2d::displace(dir2d &b) {
+pos2d pos2d::displace(const dir2d &b) const {
   double nx = x() + b.x();
   double ny = y() + b.y();
   return pos2d(nx, ny);
@@ -93,62 +93,62 @@ pos2d pos2d::displace(dir2d &b) {
 //=============================================================================*/
 // dir2d definitions
 //-----------------------------------------------------------------------------
-pos2d dir2d::operator+(pos2d &b) {
+pos2d dir2d::operator+(const pos2d &b) const {
   return displace(b);
 }
 
 //-----------------------------------------------------------------------------
-dir2d dir2d::operator+(dir2d &b) {
+dir2d dir2d::operator+(const dir2d &b) const {
   return dir2d(x() + b.x(), y() + b.y());
 }
 
 //-----------------------------------------------------------------------------
-dir2d dir2d::operator-(dir2d &b) {
+dir2d dir2d::operator-(const dir2d &b) const {
   return dir2d(x() - b.x(), y() - b.y());
 }
 
 //-----------------------------------------------------------------------------
-double dir2d::operator*(dir2d &b) {
+double dir2d::operator*(const dir2d &b) const {
   return x() * b.x() + y() * b.y();
 }
 
 //-----------------------------------------------------------------------------
-dir2d dir2d::operator*(double s) {
+dir2d dir2d::operator*(const double &s) const {
 	return dir2d(x() * s, y() * s);
 }
 
 //-----------------------------------------------------------------------------
-dir2d dir2d::operator-() {
+dir2d dir2d::operator-() const {
   return dir2d(-x(), -y());
 }
 
 //-----------------------------------------------------------------------------
-pos2d dir2d::displace(pos2d &b) {
+pos2d dir2d::displace(const pos2d &b) const {
   return b.displace(*this);
 }
 
 //-----------------------------------------------------------------------------
-dir2d dir2d::add(dir2d &b) {
+dir2d dir2d::add(const dir2d &b) const {
   return *this + b;
 }
 
 //-----------------------------------------------------------------------------
-dir2d dir2d::subtract(dir2d &b) {
+dir2d dir2d::subtract(const dir2d &b) const {
   return *this - b;
 }
 
 //-----------------------------------------------------------------------------
-double dir2d::scalar_product(dir2d &b) {
+double dir2d::scalar_product(const dir2d &b) const {
   return *this * b;
 }
 
 //-----------------------------------------------------------------------------
-double dir2d::length() {
+double dir2d::length() const {
   return sqrt(scalar_product(*this));
 }
 
 //-----------------------------------------------------------------------------
-double dir2d::cos_angle(dir2d &b) {
+double dir2d::cos_angle(const dir2d &b) const {
   return scalar_product(b)/(length() * b.length());
 }
 
@@ -158,12 +158,12 @@ void dir2d::negate( ) {
 }
 
 //-----------------------------------------------------------------------------
-dir2d dir2d::negative( ) {
+dir2d dir2d::negative( ) const {
   return dir2d(-x(), -y());
 }
 
 //-----------------------------------------------------------------------------
-dir2d operator*(double s, dir2d v) {
+dir2d operator*(const double &s, const dir2d &v) {
 	return v * s;
 }
   

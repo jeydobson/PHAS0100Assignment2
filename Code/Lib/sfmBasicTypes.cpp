@@ -52,11 +52,13 @@ pos2d pos2d::operator+(const dir2d &b) const {
 }
 
 //-----------------------------------------------------------------------------
+// N.B. ignores periodic boundary conditions
 dir2d pos2d::operator-(const pos2d &b) const {
   return pos2d::direction(b, *this);
 }       
  
 //-----------------------------------------------------------------------------
+// N.B. ignores periodic boundary conditions
 double pos2d::distance(const pos2d &b) const {
   dir2d d = this->direction(b);
   return sqrt(d.x() * d.x() + d.y() * d.y());
@@ -64,21 +66,17 @@ double pos2d::distance(const pos2d &b) const {
         
 //-----------------------------------------------------------------------------
 // direction vector a - b, where 'this' is a
+// N.B. ignores periodic boundary conditions
 dir2d pos2d::direction(const pos2d& b) const {
   return direction(*this, b);
 }
 
 //-----------------------------------------------------------------------------
 // direction vector from a to b
+// N.B. ignores periodic boundary conditions
 dir2d pos2d::direction(const pos2d &a, const pos2d &b) {
   double dx = b.x() - a.x();
   double dy = b.y() - a.y();
-  if (fabs(dx) > x_wrap/2) {
-          dx -= copysign(x_wrap, dx);
-  }
-  if (fabs(dy) > y_wrap/2) {
-          dy -= copysign(y_wrap, dy);
-  }
   return dir2d(dx, dy);
 }
 

@@ -70,7 +70,7 @@ dir2d pos2d::direction(const pos2d& b) const {
 
 //-----------------------------------------------------------------------------
 // direction vector from a to b
-dir2d pos2d::direction(const pos2d &a, const pos2d &b) const {
+dir2d pos2d::direction(const pos2d &a, const pos2d &b) {
   double dx = b.x() - a.x();
   double dy = b.y() - a.y();
   if (fabs(dx) > x_wrap/2) {

@@ -140,7 +140,7 @@ class dir2d : public vec2d {
     dir2d operator-() const; // unary negation operator
 
     pos2d displace(const pos2d&) const; // Move a position in this direction
-    dir2d add(const dir2d&); // vector addition
+    dir2d add(const dir2d&) const; // vector addition
     dir2d subtract(const dir2d &b) const; // vector subtraction
     double scalar_product(const dir2d &b) const; // Scalar product between this and b
     double length() const; // length of this direction vector

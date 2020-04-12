@@ -13,25 +13,34 @@
   VTK based viewer for Social Force Model simulation: 12 Apr 2020
       Author: Jim Dobson
 
+  See Code/CommandLineApps/sfmVisualiserDemo.cpp for example usage.
+
 =============================================================================*/
 
 #ifndef sfmVisualiser_h
 #define sfmVisualiser_h
 
 #include "vtkSmartPointer.h"
+#include "sfmBasicTypes.h"
 
 class vtkContextView;
 class vtkChartXY;
 class vtkTable;
 class vtkPlot;
 
+//! Single namespace for all code in this package
 namespace sfm {
 
+/**
+* \class Visualiser 
+* \brief VTK based visualiser class 
+* \ingroup utilities
+*/
 class Visualiser {
 
   public:
     Visualiser(unsigned int n_pedestrians = 0,
-                  double world_x = 0., double world_y = 0.);
+                  double world_x = POS2D_XWRAP, double world_y = POS2D_YWRAP);
     ~Visualiser();
     void CreateWorld(unsigned int n_pedestrians, 
 		    double width_x, double width_y);
@@ -39,7 +48,7 @@ class Visualiser {
 		       double xpos, double ypos,
 		       double xspeed, double yspeed);
     void UpdateScene();
-    void SetWindowScale(double scale);
+    void SetWindowScale(double scale); 
 
   private:
     void CreateTable();

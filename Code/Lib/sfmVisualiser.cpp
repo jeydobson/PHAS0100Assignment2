@@ -33,6 +33,9 @@
 namespace sfm
 {
 
+//=============================================================================*/
+// Visualiser definitions
+//-----------------------------------------------------------------------------
 Visualiser::Visualiser(unsigned int n_pedestrians, 
 		             double world_x, double world_y):
 	m_window_scale(15.0) {
@@ -41,10 +44,12 @@ Visualiser::Visualiser(unsigned int n_pedestrians,
 
 }
 
+//-----------------------------------------------------------------------------
 Visualiser::~Visualiser(){
   // cleanup handled by smart pointers
 }
 
+//-----------------------------------------------------------------------------
 void Visualiser::CreateWorld(unsigned int n_pedestrians, double world_x, double world_y){
 
   m_world_x = world_x;
@@ -74,6 +79,7 @@ void Visualiser::CreateWorld(unsigned int n_pedestrians, double world_x, double 
   CreateTable();  
 }
 
+//-----------------------------------------------------------------------------
 void Visualiser::CreateTable(){
 
   m_table = vtkSmartPointer<vtkTable>::New();
@@ -102,6 +108,7 @@ void Visualiser::CreateTable(){
 
 }
 
+//-----------------------------------------------------------------------------
 bool Visualiser::SetPedestrian(unsigned int i, 
 		                  double xpos, double ypos,
 				  double xspeed, double yspeed){
@@ -134,6 +141,7 @@ bool Visualiser::SetPedestrian(unsigned int i,
   return false;
 }
 
+//-----------------------------------------------------------------------------
 void Visualiser::UpdateScene(){
 
   // Brute force just replace all plots
@@ -149,6 +157,7 @@ void Visualiser::UpdateScene(){
 
 }
 
+//-----------------------------------------------------------------------------
 void Visualiser::SetWindowScale(double scale){
   m_window_scale = scale;
 }

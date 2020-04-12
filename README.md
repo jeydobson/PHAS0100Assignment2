@@ -11,6 +11,7 @@ Purpose
 Extended version of CMakeCatch2 for PHAS0100 Assignment 2 that includes vec2d, pos2d and dir2d classes with wrapping functionality for periodic boundary conditions. As with CMakeCatch2 this can be used a starting point for a reasonable folder structure for [CMake](https://cmake.org/) based projects,
 that use [CTest](https://cmake.org/) to run unit tests via [Catch](https://github.com/catchorg/Catch2).
 
+Now includes a Visualisation Toolkit (VTK) based visualiser class `Code/Lib/sfmVisualiser` that can be used to plot pedestrian positions and velocities as they are simulated. This requires VTK 7 to be installed, see below. An example of its use in application given in `Code/CommandLineApps/sfmVisualiserDemo.cpp`. 
 
 Credits
 -------
@@ -21,6 +22,11 @@ and [Dr. Matt Clarkson](https://iris.ucl.ac.uk/iris/browse/profile?upi=MJCLA42) 
 
 Build Instructions
 ------------------
+
+If you want to use the VTK visualiser you need the VTK development libraries. On Ubuntu these can be installed with:
+``` shell
+apt-get install libvtk7-dev
+```
 
 This project itself can be built if you just want to test it. In Linux terms that
 would be:

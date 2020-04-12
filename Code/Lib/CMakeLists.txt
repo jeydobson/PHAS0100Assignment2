@@ -20,6 +20,10 @@ set(PHAS0100ASSIGNMENT2_LIBRARY_SRCS
   sfmException.cpp
 )
 
+if (VTK_FOUND)
+  list(APPEND PHAS0100ASSIGNMENT2_LIBRARY_SRCS sfmVisualiser.cpp)
+endif ()
+
 set(PHAS0100ASSIGNMENT2_LIBRARY_HDRS
   sfmExceptionMacro.h
 )

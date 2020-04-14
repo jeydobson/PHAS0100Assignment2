@@ -20,6 +20,8 @@
 #ifndef sfmVisualiser_h
 #define sfmVisualiser_h
 
+#include <vector>
+
 #include "vtkSmartPointer.h"
 #include "sfmBasicTypes.h"
 
@@ -48,17 +50,19 @@ class Visualiser {
 		       double xpos, double ypos,
 		       double xspeed, double yspeed);
     void UpdateScene();
-    void SetWindowScale(double scale); 
+    void SetWindowSize(double scale); // Adjust window size, requires CreateWorld to take effect
+    void SetMarkerSize(double scale); // Adjust marker size 
 
   private:
-    void CreateTable();
+    void CreateTables();
     vtkSmartPointer<vtkContextView> m_view;
     vtkSmartPointer<vtkChartXY> m_chart;
-    vtkSmartPointer<vtkTable> m_table;
-    vtkSmartPointer<vtkPlot> m_points;
+    std::vector<vtkSmartPointer<vtkTable> > m_tables;
+    std::vector<vtkSmartPointer<vtkPlot> > m_points;
     int m_n_pedestrians;
     double m_world_x, m_world_y;
-    double m_window_scale; // scale size of window
+    double m_window_scale; // Scale size of window, arbitrary units
+    double m_marker_scale; // Scale marker size, arbitrary units
 
 }; // end class Visualiser
 

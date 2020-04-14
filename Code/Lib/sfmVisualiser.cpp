@@ -18,6 +18,7 @@
 #include "sfmVisualiser.h"
 
 #include <iostream>
+#include <cmath>
 
 #include <vtkChartXY.h>
 #include <vtkContextScene.h>
@@ -26,9 +27,13 @@
 #include <vtkPlotPoints.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkVariantArray.h>
 #include <vtkRenderer.h>
 #include <vtkTable.h>
 #include <vtkAxis.h>
+#include <vtkBrush.h>
+#include <vtkPen.h>
+
 
 namespace sfm
 {
@@ -38,7 +43,7 @@ namespace sfm
 //-----------------------------------------------------------------------------
 Visualiser::Visualiser(unsigned int n_pedestrians, 
 		             double world_x, double world_y):
-	m_window_scale(15.0) {
+	m_window_scale(15.0), m_marker_scale(5.0) {
 
   CreateWorld(n_pedestrians, world_x, world_y);
 
@@ -75,36 +80,43 @@ void Visualiser::CreateWorld(unsigned int n_pedestrians, double world_x, double 
   m_view->GetRenderWindow()->SetMultiSamples(0);
   m_view->GetInteractor()->Initialize();
 
-  // To store pedestrian data
-  CreateTable();  
+  // Create tables that store pedestrian data
+  CreateTables();  
 }
 
 //-----------------------------------------------------------------------------
-void Visualiser::CreateTable(){
+void Visualiser::CreateTables(){
 
-  m_table = vtkSmartPointer<vtkTable>::New();
+  m_tables.clear();
+
+  // To set different marker sizes and color for each pedestrian then 
+  // need a vtkTable with one row for each vtkPlot
+  for(int i = 0; i < m_n_pedestrians; i++){
+
+    m_tables.push_back(vtkSmartPointer<vtkTable>::New());
+
+    vtkSmartPointer<vtkFloatArray> arrX =
+      vtkSmartPointer<vtkFloatArray>::New();
+    arrX->SetName("X Axis [m]");
+    m_tables[i]->AddColumn(arrX);
   
-  vtkSmartPointer<vtkFloatArray> arrX =
-    vtkSmartPointer<vtkFloatArray>::New();
-  arrX->SetName("X Axis [m]");
-  m_table->AddColumn(arrX);
-
-  vtkSmartPointer<vtkFloatArray> arrY =
-    vtkSmartPointer<vtkFloatArray>::New();
-  arrY->SetName("Y Axis [m]");
-  m_table->AddColumn(arrY);
-
-  vtkSmartPointer<vtkFloatArray> arrVX =
-    vtkSmartPointer<vtkFloatArray>::New();
-  arrVX->SetName("Velocity X [m/s]");
-  m_table->AddColumn(arrVX);
- 
-  vtkSmartPointer<vtkFloatArray> arrVY =
-    vtkSmartPointer<vtkFloatArray>::New();
-  arrVY->SetName("Velocity Y [m/s]");
-  m_table->AddColumn(arrVY);
-
-  m_table->SetNumberOfRows(m_n_pedestrians);
+    vtkSmartPointer<vtkFloatArray> arrY =
+      vtkSmartPointer<vtkFloatArray>::New();
+    arrY->SetName("Y Axis [m]");
+    m_tables[i]->AddColumn(arrY);
+  
+    vtkSmartPointer<vtkFloatArray> arrVX =
+      vtkSmartPointer<vtkFloatArray>::New();
+    arrVX->SetName("Velocity X [m/s]");
+    m_tables[i]->AddColumn(arrVX);
+   
+    vtkSmartPointer<vtkFloatArray> arrVY =
+      vtkSmartPointer<vtkFloatArray>::New();
+    arrVY->SetName("Velocity Y [m/s]");
+    m_tables[i]->AddColumn(arrVY);
+  
+    m_tables[i]->SetNumberOfRows(1);
+  }
 
 }
 
@@ -118,10 +130,10 @@ bool Visualiser::SetPedestrian(unsigned int i,
     if(xpos >= 0.0 && xpos < m_world_x &&
        ypos >= 0.0 && ypos < m_world_y)
     {
-      m_table->SetValue(i, 0, xpos);
-      m_table->SetValue(i, 1, ypos);
-      m_table->SetValue(i, 2, xspeed);
-      m_table->SetValue(i, 3, yspeed);
+      m_tables[i]->SetValue(0, 0, xpos);
+      m_tables[i]->SetValue(0, 1, ypos);
+      m_tables[i]->SetValue(0, 2, xspeed);
+      m_tables[i]->SetValue(0, 3, yspeed);
 
       return true;
     }
@@ -146,21 +158,53 @@ void Visualiser::UpdateScene(){
 
   // Brute force just replace all plots
   m_chart->ClearPlots();
-  m_points = m_chart->AddPlot(vtkChart::POINTS);
-  m_points->SetColor(0, 0, 0, 255);
-  m_points->SetWidth(0.1);
+  m_points.clear();
 
-  m_points->SetInputData(m_table, 0, 1); 
-  m_points->Modified();
+  float VX, VY, speed;
+  for(int i = 0; i < m_n_pedestrians; i++){
+
+    // vtkPlot for each pedestrian to control individual marker properties
+    m_points.push_back(m_chart->AddPlot(vtkChart::POINTS));
+    m_points[i]->SetInputData(m_tables[i], 0, 1); 
+
+    // Set marker volume proportional to speed
+    VX = m_tables[i]->GetRow(0)->GetValue(2).ToFloat();
+    VY = m_tables[i]->GetRow(0)->GetValue(3).ToFloat();
+    speed = std::pow(std::pow(VX, 2.0) + std::pow(VY, 2.0), 0.5);
+    m_points[i]->SetWidth(m_marker_scale*std::pow(speed, 0.5));
+
+    if(VX >= 0) // blue if moving to the right
+    {
+      m_points[i]->GetPen()->SetColor(0,0,255);
+    }
+    else // black if moving to the left
+    {
+      m_points[i]->GetPen()->SetColor(0,0,0);
+    }	 
+
+    // Hollow markers not possible as no distinction made between marker 
+    // fill area and border: vtkPlot::GetBrush()->SetOpacityF(0.0) does nothing 
+    // and vtkPlot::GetPen()->SetOpacityF(0.0) makes the whole marker invisible.
+    // Instead set opacity to 50% for all:
+    m_points[i]->GetPen()->SetOpacityF(0.5);
+
+    m_points[i]->Modified();
+  }
 
   m_view->GetRenderWindow()->Render();
 
 }
 
 //-----------------------------------------------------------------------------
-void Visualiser::SetWindowScale(double scale){
+void Visualiser::SetWindowSize(double scale){
   m_window_scale = scale;
 }
+
+//-----------------------------------------------------------------------------
+void Visualiser::SetMarkerSize(double scale){
+  m_marker_scale = scale;
+}
+
 
 } // end namespace
 

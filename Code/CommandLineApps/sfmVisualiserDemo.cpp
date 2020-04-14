@@ -41,6 +41,8 @@ int main(int argc, char** argv){
   std::default_random_engine generator;
   std::uniform_real_distribution<double> ranx(0.0, world_width_x);
   std::uniform_real_distribution<double> rany(0.0, world_height_y);
+  std::uniform_real_distribution<double> ranvx(-0.2, 0.2);
+  std::uniform_real_distribution<double> ranvy(-1.3, 1.3);
 
   // Dummy loop over time
   int n_steps = 1000;
@@ -50,8 +52,8 @@ int main(int argc, char** argv){
     for(auto& pedestrian : pedestrians){
       pedestrian[0] = ranx(generator);
       pedestrian[1] = rany(generator);
-      pedestrian[2] = 0.1*pedestrian[0];
-      pedestrian[3] = 0.1*pedestrian[1];
+      pedestrian[2] = ranvx(generator);
+      pedestrian[3] = ranvy(generator);
     }
 
     // Send updated pedestrian positions to viewer 

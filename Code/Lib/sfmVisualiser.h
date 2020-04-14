@@ -42,7 +42,8 @@ class Visualiser {
 
   public:
     Visualiser(unsigned int n_pedestrians = 0,
-                  double world_x = POS2D_XWRAP, double world_y = POS2D_YWRAP);
+                  double world_x = POS2D_XWRAP, double world_y = POS2D_YWRAP, 
+		  double window_scale = 15.0);
     ~Visualiser();
     void CreateWorld(unsigned int n_pedestrians, 
 		    double width_x, double width_y);
@@ -50,8 +51,8 @@ class Visualiser {
 		       double xpos, double ypos,
 		       double xspeed, double yspeed);
     void UpdateScene();
-    void SetWindowSize(double scale); // Adjust window size, requires CreateWorld to take effect
-    void SetMarkerSize(double scale); // Adjust marker size 
+    void SetWindowSize(double scale); // Adjust window size (pixels/meter), requires CreateWorld to take effect
+    void SetMarkerSize(double scale); // Adjust base marker size in pixels 
 
   private:
     void CreateTables();

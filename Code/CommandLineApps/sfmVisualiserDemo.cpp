@@ -32,10 +32,17 @@ int main(int argc, char** argv){
   double world_height_y = 10.0;
   const unsigned int n_pedestrians = 10;
 
-  // Create viewer and initialise with required number of pedestrians and world dimensions
+  // Create viewer and initialise with required number of pedestrians
   sfm::Visualiser viewer(n_pedestrians, world_width_x, world_height_y);
- 
-  // Minimal structure to store dummy x,y,vx,vy 
+
+  // Or create with non-default window size, set to 20 pixels/meter
+//  sfm::Visualiser viewer(n_pedestrians, world_width_x, world_height_y, 20.0);
+
+  // Example if you want to change the base marker width (in pixels) 
+//  viewer.SetMarkerSize(8.0);
+
+  // Minimal structure to store dummy x,y,vx,vy just for the purposes of 
+  // the visualiser demo 
   std::array<std::array<double, 4>, n_pedestrians> pedestrians;
  
   std::default_random_engine generator;

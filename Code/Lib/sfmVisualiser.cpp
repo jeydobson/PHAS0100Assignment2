@@ -42,8 +42,9 @@ namespace sfm
 // Visualiser definitions
 //-----------------------------------------------------------------------------
 Visualiser::Visualiser(unsigned int n_pedestrians, 
-		             double world_x, double world_y):
-	m_window_scale(15.0), m_marker_scale(5.0) {
+		       double world_x, double world_y, 
+		       double window_scale):
+	m_window_scale(window_scale), m_marker_scale(5.0) {
 
   CreateWorld(n_pedestrians, world_x, world_y);
 

@@ -31,10 +31,11 @@ apt-get install libvtk7-dev
 This project itself can be built if you just want to test it. In Linux terms that
 would be:
 ``` cmake
-git clone https://github.com/MattClarkson/PHAS0100Assignment2
-mkdir PHAS0100Assignment2-Build
-cd PHAS0100Assignment2-Build
-cmake ../PHAS0100Assignment2
+git clone https://github.com/jeydobson/PHAS0100Assignment2
+cd PHAS0100Assignment2
+mkdir build
+cd build
+cmake .. 
 make
 ```
 You can either use this project with the current naming convention or you can use it as a 
